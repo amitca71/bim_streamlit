@@ -120,6 +120,7 @@ class CypherChainClass:
             qa_llm= ChatOpenAI(model=self.model_name, openai_api_key=self.api_key,openai_api_base=self.api_base,temperature=0)
         self.graph_chain = GraphCypherQAChain.from_llm(
             cypher_llm=cypher_llm,
+            top_k=200,
             cypher_prompt=CYPHER_GENERATION_PROMPT,
             qa_llm=qa_llm,
             validate_cypher= True,
