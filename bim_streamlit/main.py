@@ -42,7 +42,7 @@ if "messages" not in st.session_state:
     st.session_state.messages = [
         {
             "role": "ai",
-            "content": f"This is a Proof of Concept application which shows how GenAI can be used with Neo4j in order to query BIM IFC data !",
+            "content": f"This is a Proof of Concept application which shows how GenAI can be used with Neo4j in order to query BIM IFC data in human language (this is work in progress)",
         },
         # {"role": "ai", "content": f"""This the schema in which the EDGAR filings are stored in Neo4j: \n <img style="width: 70%; height: auto;" src="{SCHEMA_IMG_PATH}"/>"""},
         # {"role": "ai", "content": f"""This is how the Chatbot flow goes: \n <img style="width: 70%; height: auto;" src="{LANGCHAIN_IMG_PATH}"/>"""}
