@@ -22,7 +22,7 @@ def fetch_data(query):
 
 
 # Streamlit app layout
-st.title("Neo4j Graph Visualization")
+st.title("Building Information Modeling")
 
 # Example query to fetch data
 

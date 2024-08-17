@@ -7,7 +7,8 @@ from free_use_manager import (
 from langchain.globals import set_llm_cache
 from langchain_community.cache import InMemoryCache
 from streamlit_feedback import streamlit_feedback
-from constants import TITLE
+from constants import TITLE, TITLE1
+
 import logging
 #import rag_agent
 import  graph_cypher_chain
@@ -29,6 +30,21 @@ set_llm_cache(InMemoryCache())
 
 # App title
 st.markdown(TITLE, unsafe_allow_html=True)
+
+#st.markdown(TITLE1, unsafe_allow_html=True)
+# Define the path to your image
+#image_path = "bim_streamlit/references/langchain-logo-png_seeklogo-528369.png"
+image_path = "bim_streamlit/references/langchain.webp"
+# Create a two-column layout
+col1, col2 = st.columns([3, 1])
+
+with col1:
+    st.write("...............................................")  # Empty space in the first column to push content to the right
+#    st.write("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")  # Empty space in the first column to push content to the right
+
+with col2:
+    st.image(image_path, use_column_width=False, width=400)
+
 sidebar()
 
 # Define message placeholder and emoji feedback placeholder
@@ -43,9 +59,7 @@ if "messages" not in st.session_state:
         {
             "role": "ai",
             "content": f"This is a Proof of Concept application which shows how GenAI can be used with Neo4j in order to query BIM IFC data in human language (this is work in progress)",
-        },
-        # {"role": "ai", "content": f"""This the schema in which the EDGAR filings are stored in Neo4j: \n <img style="width: 70%; height: auto;" src="{SCHEMA_IMG_PATH}"/>"""},
-        # {"role": "ai", "content": f"""This is how the Chatbot flow goes: \n <img style="width: 70%; height: auto;" src="{LANGCHAIN_IMG_PATH}"/>"""}
+        }
     ]
 
 # Display chat messages from history on app rerun
