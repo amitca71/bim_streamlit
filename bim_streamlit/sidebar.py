@@ -6,6 +6,7 @@ from neo4j import GraphDatabase
 import json
 import networkx as nx
 from pyvis.network import Network
+from common_functions import AddSampleQuestions
 
 url = st.secrets["NEO4J_URI"]
 username = st.secrets["NEO4J_USERNAME"]
@@ -30,14 +31,6 @@ st.title("Building Information Modeling")
 import networkx as nx
 # Get all secrets
 
-def ChangeButtonColour(wgt_txt, wch_hex_colour = '12px'):
-    htmlstr = """<script>var elements = window.parent.document.querySelectorAll('*'), i;
-                for (i = 0; i < elements.length; ++i) 
-                    { if (elements[i].innerText == |wgt_txt|) 
-                        { elements[i].style.color ='""" + wch_hex_colour + """'; } }</script>  """
-
-    htmlstr = htmlstr.replace('|wgt_txt|', "'" + wgt_txt + "'")
-    components.html(f"{htmlstr}", height=0, width=0)
 
 def sidebar():
     with st.sidebar: 
@@ -65,24 +58,9 @@ def sidebar():
         net.from_nx(G)
         html_content = net.generate_html(notebook=False)
         st.components.v1.html(html_content, height=400) 
-
-        st.markdown("""Questions you can ask of the dataset:""", unsafe_allow_html=True)
-
-        # To style buttons closer together
-        st.markdown("""
-                    <style>
-                        div[data-testid="column"] {
-                            width: fit-content !important;
-                            flex: unset;
-                        }
-                        div[data-testid="column"] * {
-                            width: fit-content !important;
-                        }
-                    </style>
-                    """, unsafe_allow_html=True)
-        
         sample_questions = "How many storeys in the building?", "what materials are used?", "get distinct object names that have volume","what is the total slab volume by floor", "כמה קירות יש בבניין?","כמה קורות יש בקומה 15","מהן שתי הקומות הראשונות?","מה נפח הקורות הכולל בבניין?", "מה נפח הרצפה הכולל?","What is the total length of the column in the building?", "מהי הקומה האמצעית בבניין?", "מה נפח הקורות בקומה הגבוהה ביותר? מה שמה ? ומה גובהה?"
 
-        for text, col in zip(sample_questions, st.columns(len(sample_questions))):
-            if col.button(text, key=text):
-                st.session_state["sample"] = text
+        AddSampleQuestions(sample_questions)
+
+
+  
