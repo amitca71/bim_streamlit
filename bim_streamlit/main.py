@@ -101,7 +101,9 @@ if user_input:
                 thought_container = st.container()
                 agent_response=None
                 if(st.session_state["USER_SELECTION"]=="IFC"):
-                    agent_response=cypher_tool.run(tool_input=user_input)            
+                    agent_response=cypher_tool.run(tool_input=user_input)  
+                elif(st.session_state["USER_SELECTION"]=="DOCUMENTATION"):
+                    print("now we are in new")       
                 if isinstance(agent_response, dict) is False:
                     logging.warning(
                         f"Agent response was not the expected dict type: {agent_response}"

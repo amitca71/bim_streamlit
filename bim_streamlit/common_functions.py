@@ -35,3 +35,21 @@ def AddSampleQuestions(sample_questions):
         for text, col in zip(sample_questions, st.columns(len(sample_questions))):
             if col.button(text, key=text):
                 st.session_state["sample"] = text
+
+
+class ChainClass:
+    def __init__(self):
+        self.api_key = st.session_state["USER_OPENAI_API_KEY"] if (("USER_OPENAI_API_KEY" in st.session_state) and (st.session_state["USER_OPENAI_API_KEY"])) else  st.secrets[st.session_state["MODEL_API_KEY_TYPE"]]
+        print("api key" + self.api_key, "USER_OPENAI_API_KEY" in  st.session_state ,st.secrets[st.session_state["MODEL_API_KEY_TYPE"]])
+        self.api_base=None if "GOOGLE" in st.session_state["MODEL_API_KEY_TYPE"] else st.secrets[st.session_state["MODEL_API_KEY_TYPE"].replace("KEY", "BASE")]
+        self.model_name=st.session_state['GPT_MODEL_NAME']
+        self.graph_chain=None
+        self.set_graphchain()
+
+    def update_key(self):
+        self.api_key = st.session_state["USER_OPENAI_API_KEY"]
+        print("setting new key: " + self.api_key)
+        self.set_graphchain()
+
+    def update_model(self, modle_name):
+        self.model_name=st.session_state["GPT_MODEL_NAME"]

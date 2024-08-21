@@ -7,6 +7,7 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 from retry import retry
 import logging
 import streamlit as st
+from common_functions import ChainClass
 
 CYPHER_GENERATION_TEMPLATE = """
 Task:Generate Cypher statement to query a graph database.
@@ -91,23 +92,7 @@ graph = Neo4jGraph(
 )
 import os
 
-class CypherChainClass:
-    def __init__(self):
-        self.api_key = st.session_state["USER_OPENAI_API_KEY"] if (("USER_OPENAI_API_KEY" in st.session_state) and (st.session_state["USER_OPENAI_API_KEY"])) else  st.secrets[st.session_state["MODEL_API_KEY_TYPE"]]
-        print("api key" + self.api_key, "USER_OPENAI_API_KEY" in  st.session_state ,st.secrets[st.session_state["MODEL_API_KEY_TYPE"]])
-        self.api_base=None if "GOOGLE" in st.session_state["MODEL_API_KEY_TYPE"] else st.secrets[st.session_state["MODEL_API_KEY_TYPE"].replace("KEY", "BASE")]
-        self.model_name=st.session_state['GPT_MODEL_NAME']
-        self.graph_chain=None
-        self.set_graphchain()
-
-    def update_key(self):
-        self.api_key = st.session_state["USER_OPENAI_API_KEY"]
-        print("setting new key: " + self.api_key)
-        self.set_graphchain()
-
-    def update_model(self, modle_name):
-        self.model_name=st.session_state["GPT_MODEL_NAME"]
-
+class CypherChainClass(ChainClass):
     def set_graphchain(self):
         print("setting new graphchain")
         print(self.model_name, self.api_base, self.api_key)
@@ -132,12 +117,6 @@ class CypherChainClass:
 
     @retry(tries=2, delay=12)
     def get_results(self, question) -> str:
-#        if (("USER_OPENAI_API_KEY" in st.session_state) and (st.session_state["USER_OPENAI_API_KEY"]!=self.api_key )):
-#            self.update_key()
-#            self.set_graphchain()
-#        else:
-#            print("keys are equal" + self.api_key)
-
         """Generate a response from a GraphCypherQAChain targeted at generating answered related to relationships. 
 
         Args:
