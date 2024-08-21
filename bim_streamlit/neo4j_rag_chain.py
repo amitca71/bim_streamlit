@@ -14,7 +14,7 @@ from langchain_openai import OpenAIEmbeddings
 import streamlit as st
 from langchain.chains import RetrievalQA
 
-from node4j_rag_retrievers import (
+from neo4j_rag_retrievers import (
     hypothetic_question_vectorstore,
     parent_vectorstore,
     summary_vectorstore,
@@ -83,7 +83,8 @@ class RagChainClass(ChainClass):
         username=st.secrets["DOC_NEO4J_USERNAME"],
         password=st.secrets["DOC_NEO4J_PASSWORD"])
         qa = RetrievalQA.from_chain_type(
-            llm=self.rag_llm, chain_type="stuff", retriever=vectorstore.as_retriever()
+            llm=self.rag_llm, chain_type="stuff"
+            , retriever=vectorstore.as_retriever()
         )        
 #        stream_handler = StreamHandler(st.empty())
         result=answer = qa.run(question)
