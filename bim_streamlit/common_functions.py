@@ -44,7 +44,7 @@ class ChainClass:
         self.api_base=None if "GOOGLE" in st.session_state["MODEL_API_KEY_TYPE"] else st.secrets[st.session_state["MODEL_API_KEY_TYPE"].replace("KEY", "BASE")]
         self.model_name=st.session_state['GPT_MODEL_NAME']
         self.graph_chain=None
-        self.set_graphchain()
+        self.set_chain()
 
     def update_key(self):
         self.api_key = st.session_state["USER_OPENAI_API_KEY"]

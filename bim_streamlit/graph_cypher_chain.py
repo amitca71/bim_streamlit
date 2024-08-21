@@ -93,7 +93,7 @@ graph = Neo4jGraph(
 import os
 
 class CypherChainClass(ChainClass):
-    def set_graphchain(self):
+    def set_chain(self):
         print("setting new graphchain")
         print(self.model_name, self.api_base, self.api_key)
         self.graph_chain=None

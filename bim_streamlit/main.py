@@ -13,6 +13,7 @@ import logging
 #import rag_agent
 import  graph_cypher_chain
 from graph_cypher_tool import GrpahCypherTool
+from graph_rag_tool import GraphRagTool
 import streamlit as st
 from common_sidebar import common_sidebar
 
@@ -53,6 +54,7 @@ placeholder = st.empty()
 emoji_feedback = st.empty()
 user_placeholder = st.empty()
 cypher_tool=GrpahCypherTool()
+rag_tool=GraphRagTool()
    
 # Initialize message history
 if "messages" not in st.session_state:
@@ -103,7 +105,7 @@ if user_input:
                 if(st.session_state["USER_SELECTION"]=="IFC"):
                     agent_response=cypher_tool.run(tool_input=user_input)  
                 elif(st.session_state["USER_SELECTION"]=="DOCUMENTATION"):
-                    print("now we are in new")       
+                    agent_response=rag_tool.run(tool_input=user_input)     
                 if isinstance(agent_response, dict) is False:
                     logging.warning(
                         f"Agent response was not the expected dict type: {agent_response}"
