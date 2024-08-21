@@ -5,6 +5,7 @@ from langchain_community.graphs import Neo4jGraph
 from neo4j import GraphDatabase
 import json
 from sidebar import sidebar
+from technical_doc_sidebar import technical_doc_sidebar
 
 
 # Streamlit app layout
@@ -42,24 +43,16 @@ def common_sidebar():
             #     st.session_state["USER_OPENAI_API_KEY"] = new_oak
             # else:
             st.session_state["USER_OPENAI_API_KEY"] = new_oak
-            # Streamlit app layout
-#            st.title("Neo4j Graph Visualization with Relationships")
-
-#        model_name = st.selectbox(
-#            "select model- beaware: no free quote for gpt-4o!!",
-#            models_dct.keys(),
-#        )
 
         st.session_state["MODEL_API_KEY_TYPE"]=models_dct[model_name]
         st.session_state["GPT_MODEL_NAME"]=model_name
         if page == "IFC model":
             print("selected IFC")
-#            st.title("You can now communicate with the IFC model")
+            st.session_state["USER_SELECTION"]="IFC"
             sidebar()
-
-            # Add your old route content here
         elif page == "Technical documentation":
-            st.title("You can now communicate with the Technical documentation")
+            st.session_state["USER_SELECTION"]="DOCUMENTATION"
+            technical_doc_sidebar()
 
 
  

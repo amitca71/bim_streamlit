@@ -7,8 +7,6 @@ import json
 import networkx as nx
 from pyvis.network import Network
 
-
-
 def ChangeButtonColour(wgt_txt, wch_hex_colour = '12px'):
     htmlstr = """<script>var elements = window.parent.document.querySelectorAll('*'), i;
                 for (i = 0; i < elements.length; ++i) 

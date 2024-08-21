@@ -99,21 +99,9 @@ if user_input:
 
                 message_placeholder = st.empty()
                 thought_container = st.container()
-
-                # For displaying chain of thought - this callback handler appears to only works with the deprecated initialize_agent option (see rag_agent.py)
-                # st_callback = StreamlitCallbackHandler(
-                #   parent_container= thought_container,
-                #   expand_new_thoughts=False
-                # )
-                # StreamlitCcallbackHandler api doc: https://api.python.langchain.com/en/latest/callbacks/langchain_community.callbacks.streamlit.streamlit_callback_handler.StreamlitCallbackHandler.html
-
-#                agent_response = rag_agent.get_results(
-#                    question=user_input, callbacks=[]
-#                )
-#                agent_response = graph_cypher_chain.get_results(
-#                    question=user_input
-#                )    
-                agent_response=cypher_tool.run(tool_input=user_input)            
+                agent_response=None
+                if(st.session_state["USER_SELECTION"]=="IFC"):
+                    agent_response=cypher_tool.run(tool_input=user_input)            
                 if isinstance(agent_response, dict) is False:
                     logging.warning(
                         f"Agent response was not the expected dict type: {agent_response}"
