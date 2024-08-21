@@ -29,8 +29,6 @@ st.title("Building Information Modeling")
 # Optionally visualize graph data using third-party libraries
 import networkx as nx
 # Get all secrets
-models_dct = {v: k.split("_")[3] + "_API_KEY" for  k,v in st.secrets.items() if "GPT_MODEL_NAME" in k }
-print (models_dct)
 
 def ChangeButtonColour(wgt_txt, wch_hex_colour = '12px'):
     htmlstr = """<script>var elements = window.parent.document.querySelectorAll('*'), i;
@@ -42,33 +40,8 @@ def ChangeButtonColour(wgt_txt, wch_hex_colour = '12px'):
     components.html(f"{htmlstr}", height=0, width=0)
 
 def sidebar():
-    with st.sidebar:
-#        model_name=list(models_dct.keys())[0] if "GPT_MODEL_NAME" not in st.session_state else st.session_state["GPT_MODEL_NAME"] 
-        model_name = st.selectbox(
-            "select model- beaware: no free quote for gpt-4o!!",
-            models_dct.keys(),
-        )
-        st.write("selected model:", model_name)
-        remaining_free_queries=st.session_state["FREE_QUESTIONS_REMAINING"] if "FREE_QUESTIONS_REMAINING" in st.session_state else st.secrets["FREE_QUESTIONS_PER_SESSION"]
-        st.write(f"remaining free quoata is: {remaining_free_queries} free questions")
-        with st.expander(f"""Model Key- (needed after free quota is exahusted)"""):
-            new_oak = st.text_input("Your API Key")
-            # if "USER_OPENAI_API_KEY" not in st.session_state:
-            #     st.session_state["USER_OPENAI_API_KEY"] = new_oak
-            # else:
-            st.session_state["USER_OPENAI_API_KEY"] = new_oak
-            # Streamlit app layout
-            st.title("Neo4j Graph Visualization with Relationships")
-
-#        model_name = st.selectbox(
-#            "select model- beaware: no free quote for gpt-4o!!",
-#            models_dct.keys(),
-#        )
-
-        st.session_state["MODEL_API_KEY_TYPE"]=models_dct[model_name]
-        st.session_state["GPT_MODEL_NAME"]=model_name
-
-
+    with st.sidebar: 
+#        st.title("Neo4j Graph Visualization with Relationships")
         # Streamlit app
         st.title('Graph Visualization')
         G = nx.Graph()
@@ -91,7 +64,7 @@ def sidebar():
  
         net.from_nx(G)
         html_content = net.generate_html(notebook=False)
-        st.components.v1.html(html_content, height=750) 
+        st.components.v1.html(html_content, height=400) 
 
         st.markdown("""Questions you can ask of the dataset:""", unsafe_allow_html=True)
 

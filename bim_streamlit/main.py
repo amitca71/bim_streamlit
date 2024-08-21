@@ -14,7 +14,7 @@ import logging
 import  graph_cypher_chain
 from graph_cypher_tool import GrpahCypherTool
 import streamlit as st
-from sidebar import sidebar
+from common_sidebar import common_sidebar
 
 # Logging options
 logger = logging.getLogger(__name__)
@@ -44,8 +44,9 @@ with col1:
 
 with col2:
     st.image(image_path, use_column_width=False, width=400)
+# Create a dropdown menu
 
-sidebar()
+common_sidebar()
 
 # Define message placeholder and emoji feedback placeholder
 placeholder = st.empty()
