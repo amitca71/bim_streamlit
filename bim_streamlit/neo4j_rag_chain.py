@@ -61,34 +61,19 @@ class RagChainClass(ChainClass):
             self.rag_llm = ChatGoogleGenerativeAI(model=self.model_name, google_api_key=self.api_key,temperature=0, verbose=True,top_k=200)
         else:
             self.rag_llm = ChatOpenAI(model=self.model_name, openai_api_key=self.api_key,openai_api_base=self.api_base,temperature=0)
-        self.rag_chain = (
-                RunnableParallel(
-                {
-                    "context": itemgetter("question") | retriever | format_docs,
-                    "question": itemgetter("question"),
-                }
-            )
-            | prompt
-            | self.rag_llm
-            | StrOutputParser()
-        )
-        
-
-    @retry(tries=2, delay=12)
-    def get_results(self, question) -> str:
-        print("get_results input is:" + question)
-        # Invoke the retrieval chain with the user's question
-        vectorstore=Neo4jVector.from_existing_index(
+        self.vectorstore=Neo4jVector.from_existing_index(
         OpenAIEmbeddings(), index_name="typical_rag", url=st.secrets["DOC_NEO4J_URI"],
         username=st.secrets["DOC_NEO4J_USERNAME"],
         password=st.secrets["DOC_NEO4J_PASSWORD"])
-        qa = RetrievalQA.from_chain_type(
+        self.rag_chain = RetrievalQA.from_chain_type(
             llm=self.rag_llm, chain_type="stuff"
-            , retriever=vectorstore.as_retriever()
-        )        
-#        stream_handler = StreamHandler(st.empty())
-        result=answer = qa.run(question)
-#        result = self.rag_chain.invoke(question)
+            , retriever=self.vectorstore.as_retriever()
+        )      
+        
+    @retry(tries=1, delay=12)
+    def get_results(self, question) -> str:
+        print("get_results input is:" + question)
+        result = self.rag_chain.invoke(question)
         return(result)
 
 
