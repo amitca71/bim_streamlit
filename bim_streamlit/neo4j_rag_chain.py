@@ -13,6 +13,7 @@ from langchain_community.vectorstores import Neo4jVector
 from langchain_openai import OpenAIEmbeddings
 import streamlit as st
 from langchain.chains import RetrievalQA
+import logging
 
 from neo4j_rag_retrievers import (
     hypothetic_question_vectorstore,
@@ -72,8 +73,18 @@ class RagChainClass(ChainClass):
         
     @retry(tries=1, delay=12)
     def get_results(self, question) -> str:
-        print("get_results input is:" + question)
-        result = self.rag_chain.invoke(question)
+        """Generate response using Neo4jVector using vector index only
+
+        Args:
+            question (str): User query
+
+        Returns:
+            str: Formatted string answer with citations, if available.
+        """
+        logging.info(f"Question: {question}")
+        chain_result = self.rag_chain.invoke(question, return_only_outputs=True)
+        logging.debug(f"chain_result: {chain_result}")
+        result = chain_result["result"]
         return(result)
 
 
