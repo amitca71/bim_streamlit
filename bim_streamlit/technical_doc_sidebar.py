@@ -31,18 +31,25 @@ st.title("Building Information Modeling")
 import networkx as nx
 # Get all secrets
 
-
+rag_strategy_list=["typical_rag","parent_strategy", "hypothetical_questions"]
 def technical_doc_sidebar():
     with st.sidebar: 
 #        st.title("Neo4j Graph Visualization with Relationships")
         # Streamlit app
+        rag_strategy=st.sidebar.selectbox("Select RAG strategy", rag_strategy_list)
+        n="Parent"
+        r="HAS_CHILD"
+        m="Child"
+        if (rag_strategy=="hypothetical_questions"):
+            r="HAS_QUESTION"
+            m="Question"
+        st.session_state["RAG_STRATEGY"]=rag_strategy
         st.title('Graph Visualization')
         G = nx.Graph()
 
         # Example query to fetch data
-        query = """
-        MATCH (n:IfcRelAggregates)-[r:RelatedObjects]->(m:IfcBuildingStorey)
-            RETURN n, r, m limit 10
+        query = f"""
+        MATCH (n:{n})-[r:{r}]->(m:{m}) RETURN n, r, m LIMIT 5;
         """
         results = fetch_data(query)
             
@@ -50,10 +57,10 @@ def technical_doc_sidebar():
             node1 = record["n"]
             node2 = record["m"]
             relationship = record["r"]
-            G.add_node(node1["nid"], label=list(node1.labels)[0], properties=dict(node1))
-            G.add_node(node2["nid"], label=list(node2.labels)[0], properties=dict(node2))
-            G.add_edge(node1["nid"], node2["nid"], label=relationship.type, properties=dict(relationship))
-        net = Network(notebook=False, height="750px", width="100%", bgcolor="#222222", font_color="white", cdn_resources='remote')
+            G.add_node(node1["id"], label=list(node1.labels)[0], properties=dict(node1))
+            G.add_node(node2["id"], label=list(node2.labels)[0], properties=dict(node2))
+            G.add_edge(node1["id"], node2["id"], label=relationship.type, properties=dict(relationship))
+        net = Network(notebook=False, height="500px", width="100%", bgcolor="#222222", font_color="white", cdn_resources='remote')
  
         net.from_nx(G)
         html_content = net.generate_html(notebook=False)
