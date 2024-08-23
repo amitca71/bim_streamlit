@@ -5,9 +5,6 @@ class GrpahCypherTool:
     def __init__(self):
         self.cypher_chain = CypherChainClass()
 
-    def update_llm_key(self):
-        self.cypher_chain.update_key()
-
 #    @tool("graph-cypher-tool") - AMIT when working with agent this would need to be changed!!
     def run(self, tool_input:str) -> str:
         """

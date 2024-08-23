@@ -9,6 +9,17 @@ import logging
 import streamlit as st
 from common_functions import ChainClass
 
+#CYPHER_GENERATION_TEMPLATE = """Task: Generate Cypher statement to query a graph database strictly based on the schema and instructions provided.
+#Instructions:
+#1. Use only nodes, relationships, and properties mentioned in the schema.
+#2. Always enclose the Cypher output inside 3 backticks. Do not add 'cypher' after the backticks.
+#3. Always do a case-insensitive and fuzzy search for any properties related search. Eg: to search for a Company name use `toLower(c.name) contains 'neo4j'`
+#4. Always use aliases to refer the node in the query
+#5. Always return count(DISTINCT n) for aggregations to avoid duplicates
+#6. `OWNS_STOCK_IN` relationship is syonymous with `OWNS` and `OWNER`
+#7. Use examples of questions and accurate Cypher statements below to guide you.
+
+
 CYPHER_GENERATION_TEMPLATE = """
 Task:Generate Cypher statement to query a graph database.
 Instructions:
@@ -115,7 +126,7 @@ class CypherChainClass(ChainClass):
             return_direct = True)
         
 
-    @retry(tries=2, delay=12)
+    @retry(tries=1, delay=12)
     def get_results(self, question) -> str:
         """Generate a response from a GraphCypherQAChain targeted at generating answered related to relationships. 
 
@@ -146,8 +157,7 @@ class CypherChainClass(ChainClass):
             # for the question with the given database schema
             logging.warning(f'Handled exception running graphCypher chain: {e}')
             print(e)
- #       print("after result")
-        logging.debug(f'chain_result: {chain_result}')
+        logging.info(f'chain_result: {chain_result}')
 
         if chain_result is None:
             return "Sorry, I couldn't find an answer to your question"

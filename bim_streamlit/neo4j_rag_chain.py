@@ -53,6 +53,20 @@ retriever = typical_rag.as_retriever().configurable_alternatives(
 # Add typing for input
 class Question(BaseModel):
     question: str
+retrieval_query_dict={
+    "typical_rag": None,
+    "parent_document": """
+                    MATCH (node)<-[:HAS_CHILD]-(parent)
+                    WITH parent, max(score) AS score // deduplicate parents
+                    RETURN parent.text AS text, score, {} AS metadata LIMIT 1
+                    """,
+    "hypothetical_questions": """
+                    MATCH (node)<-[:HAS_QUESTION]-(parent)
+                    WITH parent, max(score) AS score // deduplicate parents
+                    RETURN parent.text AS text, score, {} AS metadata
+                    """
+
+}
 class RagChainClass(ChainClass):
     def set_chain(self):
         print("setting new graphchain")
@@ -62,10 +76,11 @@ class RagChainClass(ChainClass):
             self.rag_llm = ChatGoogleGenerativeAI(model=self.model_name, google_api_key=self.api_key,temperature=0, verbose=True,top_k=200)
         else:
             self.rag_llm = ChatOpenAI(model=self.model_name, openai_api_key=self.api_key,openai_api_base=self.api_base,temperature=0)
+        index_name=st.session_state["RAG_STRATEGY"] if "RAG_STRATEGY" in st.session_state else "typical_rag"
         self.vectorstore=Neo4jVector.from_existing_index(
-        OpenAIEmbeddings(), index_name="typical_rag", url=st.secrets["DOC_NEO4J_URI"],
+        OpenAIEmbeddings(), index_name=index_name, url=st.secrets["DOC_NEO4J_URI"],
         username=st.secrets["DOC_NEO4J_USERNAME"],
-        password=st.secrets["DOC_NEO4J_PASSWORD"])
+        password=st.secrets["DOC_NEO4J_PASSWORD"], retrieval_query=None)
         self.rag_chain = RetrievalQA.from_chain_type(
             llm=self.rag_llm, chain_type="stuff"
             , retriever=self.vectorstore.as_retriever()

@@ -31,7 +31,7 @@ st.title("Building Information Modeling")
 import networkx as nx
 # Get all secrets
 
-rag_strategy_list=["typical_rag","parent_strategy", "hypothetical_questions"]
+rag_strategy_list=["typical_rag","parent_document", "hypothetical_questions"]
 def technical_doc_sidebar():
     with st.sidebar: 
 #        st.title("Neo4j Graph Visualization with Relationships")

@@ -46,10 +46,3 @@ class ChainClass:
         self.graph_chain=None
         self.set_chain()
 
-    def update_key(self):
-        self.api_key = st.session_state["USER_OPENAI_API_KEY"]
-        print("setting new key: " + self.api_key)
-        self.set_graphchain()
-
-    def update_model(self, modle_name):
-        self.model_name=st.session_state["GPT_MODEL_NAME"]
