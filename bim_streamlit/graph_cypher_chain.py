@@ -18,7 +18,8 @@ from common_functions import ChainClass
 #5. Always return count(DISTINCT n) for aggregations to avoid duplicates
 #6. `OWNS_STOCK_IN` relationship is syonymous with `OWNS` and `OWNER`
 #7. Use examples of questions and accurate Cypher statements below to guide you.
-
+#Schema:
+#{schema}
 
 CYPHER_GENERATION_TEMPLATE = """
 Task:Generate Cypher statement to query a graph database.
@@ -28,10 +29,6 @@ use only cypher relationships that are mentioned below "The relationships:"
 All the data is based on ifc (industry foundation classes) standard.
 Do not use any other relationship types or properties that are not provided.
 use the examples below as much as possible, before submitting the answer.  
-
-
-Schema:
-{schema}
 
 
 Cypher examples:
@@ -72,6 +69,14 @@ resonses:            MATCH (m:IfcMaterial)<-[:RelatingMaterial]-(ascmat:IfcRelAs
 resonses:            MATCH (e)<-[:RelatedObjects]-(rdbp:IfcRelDefinesByProperties)-[:RelatingPropertyDefinition]->(eq:IfcElementQuantity)-[:Quantities]->(q) WITH e, eq, q, LABELS(e)[0] AS element_entity, PROPERTIES(q) AS qProps RETURN e.Name AS elementName, element_entity ,e.ObjectType as element_type ,q.Name AS quantity_property_name, CASE WHEN size(keys(qProps)) >= 2 THEN qProps[ keys(qProps)[1] ] ELSE null END AS quantity_property_value
 # what is the height of קומה 15?
 response:           MATCH (n:IfcBuildingStorey {{Name: "קומה 15"}}) return n.Elevation      
+# slab and slab thinkness for all slabs greater than 25 
+response:           match (s:IfcSlab)<-[:RelatedObjects]-(:IfcRelAssociatesMaterial)-[:RelatingMaterial]->(:IfcMaterialLayerSetUsage)-[:ForLayerSet]->(:IfcMaterialLayerSet)-[:MaterialLayers]->(ml:IfcMaterialLayer) where ml.LayerThickness> 25.0 return s, ml.LayerThickness 
+# all slabs located on floor named קומה 9   
+response:           MATCH (storey:IfcBuildingStorey {{Name: "קומה 9"}} )<-[:RelatingStructure]-(ss:IfcRelContainedInSpatialStructure)-[:RelatedElements]->(c:IfcSlab) return c
+# get list of slabs and  the slab area
+response:           MATCH (c:IfcSlab)<-[:RelatedObjects]-(eq:IfcRelDefinesByProperties)-[:RelatingPropertyDefinition]->(ev:IfcElementQuantity)-[:Quantities]->(qv:IfcQuantityArea {{Name: "NetArea"}}) return c, qv.AreaValue
+# get list of slabs and slab types: 
+response:           MATCH (s:IfcSlab)<-[:RelatedObjects]-(:IfcRelDefinesByType)-[:RelatingType]->(st:IfcSlabType) return s, st   
 
 Critical Note: 
 Do not include any explanations or apologies in your responses.
