@@ -31,7 +31,7 @@ st.title("Building Information Modeling")
 import networkx as nx
 # Get all secrets
 
-rag_strategy_list=["typical_rag","parent_document", "hypothetical_questions"]
+rag_strategy_list=["typical_rag","parent_document", "hypothetical_questions", "summary"]
 def technical_doc_sidebar():
     with st.sidebar: 
 #        st.title("Neo4j Graph Visualization with Relationships")
@@ -65,8 +65,8 @@ def technical_doc_sidebar():
         net.from_nx(G)
         html_content = net.generate_html(notebook=False)
         st.components.v1.html(html_content, height=400) 
-        sample_questions = ["what is the appartment number", "באיזה קומה הדירה?", "מה אורך ארונות המטבח?", 
-                            "באיזה רחוב הבניין?", "מה יש בקומת המרתף" , "האם יש ממד בדירה?", "אילו דלתות יש בחדרי המדרגות?"]
+        sample_questions = ["what is the total price?", "what is the documenst about?", "what construction items are mentioned in the document?" 
+                            "how is the roof smoothing handled"]
 
         AddSampleQuestions(sample_questions)
 

@@ -65,7 +65,12 @@ retrieval_query_dict={
                     MATCH (node)<-[:HAS_QUESTION]-(parent)
                     WITH parent, max(score) AS score // deduplicate parents
                     RETURN parent.text AS text, score, {} AS metadata
-                    """
+                    """,
+    "summary" : """
+        MATCH (node)<-[:HAS_SUMMARY]-(parent)
+        WITH parent, max(score) AS score // deduplicate parents
+        RETURN parent.text AS text, score, {} AS metadata
+        """
 
 }
 class RagChainClass(ChainClass):
