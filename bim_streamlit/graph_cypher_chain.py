@@ -3,6 +3,8 @@ from langchain.chains.conversation.memory import ConversationBufferMemory
 from langchain_community.graphs import Neo4jGraph
 from langchain.prompts.prompt import PromptTemplate
 from langchain_openai import ChatOpenAI
+from langchain.callbacks import get_openai_callback
+
 from langchain_google_genai import ChatGoogleGenerativeAI
 from retry import retry
 import logging
@@ -29,6 +31,7 @@ use only cypher relationships that are mentioned below "The relationships:"
 All the data is based on ifc (industry foundation classes) standard.
 Do not use any other relationship types or properties that are not provided.
 use the examples below as much as possible, before submitting the answer.  
+make sure that you are writing correct cypher syntax, and dont mix with SQL syntax!!!!!
 
 
 Cypher examples:
@@ -92,9 +95,10 @@ CYPHER_GENERATION_PROMPT = PromptTemplate(
 
 MEMORY = ConversationBufferMemory(
     memory_key="chat_history", 
-    input_key='question', 
-    output_key='answer', 
-    return_messages=True)
+    input_key='query', 
+    output_key='result', 
+    return_messages=True,
+    max_token_limit=20000)
 
 url = st.secrets["NEO4J_URI"]
 username = st.secrets["NEO4J_USERNAME"]
@@ -126,10 +130,11 @@ class CypherChainClass(ChainClass):
             qa_llm=qa_llm,
             validate_cypher= True,
             graph=graph,
+            memory=MEMORY,
             verbose=True, 
             return_intermediate_steps = True,
             return_direct = True)
-        
+
 
     @retry(tries=1, delay=12)
     def get_results(self, question) -> str:
@@ -152,11 +157,15 @@ class CypherChainClass(ChainClass):
         chain_result = None
 #        print("before chain result")
         try:
-            chain_result = self.graph_chain.invoke({
-                "query": question},
-                prompt=prompt,
-                return_only_outputs = True,
-            )
+            with get_openai_callback() as cb:
+                chain_result = self.graph_chain.invoke({
+                    "query": question},
+                    prompt=prompt,
+                    return_only_outputs = True,
+                )
+                print(cb)
+            logging.info(f'chain result: {chain_result}')
+            print(f'chain result: {chain_result}')
         except Exception as e:
             # Occurs when the chain can not generate a cypher statement
             # for the question with the given database schema
@@ -168,5 +177,6 @@ class CypherChainClass(ChainClass):
             return "Sorry, I couldn't find an answer to your question"
         
         result = chain_result.get("result", None)
+        intermediate_steps=chain_result.get("intermediate_steps", None)
 
-        return result
+        return result, intermediate_steps, cb

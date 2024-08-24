@@ -101,11 +101,13 @@ if user_input:
 
                 message_placeholder = st.empty()
                 thought_container = st.container()
+                cb=None
                 agent_response=None
+                intermediate_steps=None
                 if(st.session_state["USER_SELECTION"]=="IFC"):
-                    agent_response=cypher_tool.run(tool_input=user_input)  
+                    agent_response, intermediate_steps, cb=cypher_tool.run(tool_input=user_input)  
                 elif(st.session_state["USER_SELECTION"]=="DOCUMENTATION"):
-                    agent_response=rag_tool.run(tool_input=user_input)     
+                    agent_response, cb=rag_tool.run(tool_input=user_input)     
                 if isinstance(agent_response, dict) is False:
                     logging.warning(
                         f"Agent response was not the expected dict type: {agent_response}"
@@ -113,16 +115,21 @@ if user_input:
                     agent_response = str(agent_response)
                 content = str(agent_response)
  #               content = agent_response["output"]
-
+                print(f"content={content}")
                 track(
                     "rag_demo", "ai_response", {"type": "rag_agent", "answer": content}
                 )
                 new_message = {"role": "ai", "content": content}
                 st.session_state.messages.append(new_message)
-
+                generated_cypher=None
+                if intermediate_steps:
+                    generated_cypher=intermediate_steps[0]["query"].replace("cypher", "")
+                    st.write(f"generated_cypher: {generated_cypher}" )
+                st.write(f"query info: {cb}" )
                 decrement_free_questions()
 
             message_placeholder.markdown(content)
+
 
     # Reinsert user chat input if sample quick select was previously used.
     if "sample" in st.session_state and st.session_state["sample"] is not None:

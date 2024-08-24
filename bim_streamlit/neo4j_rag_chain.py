@@ -14,6 +14,8 @@ from langchain_openai import OpenAIEmbeddings
 import streamlit as st
 from langchain.chains import RetrievalQA
 import logging
+from langchain.callbacks import get_openai_callback
+from langchain.chains.conversation.memory import ConversationBufferMemory
 
 from neo4j_rag_retrievers import (
     hypothetic_question_vectorstore,
@@ -41,14 +43,13 @@ template = """Answer the question based only on the following context:
 Question: {question}
 """
 prompt = ChatPromptTemplate.from_template(template)
+MEMORY = ConversationBufferMemory(
+    memory_key="chat_history", 
+    input_key='query', 
+    output_key='result', 
+    return_messages=True,
+    max_token_limit=5000)
 
-retriever = typical_rag.as_retriever().configurable_alternatives(
-    ConfigurableField(id="strategy"),
-    default_key="typical_rag",
-    parent_strategy=parent_vectorstore.as_retriever(),
-    hypothetical_questions=hypothetic_question_vectorstore.as_retriever(),
-    summary_strategy=summary_vectorstore.as_retriever(),
-)
 
 # Add typing for input
 class Question(BaseModel):
@@ -83,7 +84,8 @@ class RagChainClass(ChainClass):
         password=st.secrets["DOC_NEO4J_PASSWORD"], retrieval_query=None)
         self.rag_chain = RetrievalQA.from_chain_type(
             llm=self.rag_llm, chain_type="stuff"
-            , retriever=self.vectorstore.as_retriever()
+            , retriever=self.vectorstore.as_retriever(),
+            memory=MEMORY,
         )      
         
     @retry(tries=1, delay=12)
@@ -97,10 +99,12 @@ class RagChainClass(ChainClass):
             str: Formatted string answer with citations, if available.
         """
         logging.info(f"Question: {question}")
-        chain_result = self.rag_chain.invoke(question, return_only_outputs=True)
+        with get_openai_callback() as cb:
+            chain_result = self.rag_chain.invoke(question, return_only_outputs=True)
+            print (cb)
         logging.debug(f"chain_result: {chain_result}")
         result = chain_result["result"]
-        return(result)
+        return(result, cb)
 
 
 
