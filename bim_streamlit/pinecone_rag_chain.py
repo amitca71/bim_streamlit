@@ -62,7 +62,7 @@ class RagChainClass(ChainClass):
         print(self.model_name, self.api_base, self.api_key)
         self.graph_chain=None
         if "gemini" in self.model_name:
-            self.rag_llm = ChatGoogleGenerativeAI(model=self.model_name, google_api_key=self.api_key,temperature=0, verbose=True,top_k=3)
+            self.rag_llm = ChatGoogleGenerativeAI(model=self.model_name, google_api_key=self.api_key,temperature=0, verbose=True)
         else:
             self.rag_llm = ChatOpenAI(model=self.model_name, openai_api_key=self.api_key,openai_api_base=self.api_base,temperature=0)
         pinecone_api_key = st.secrets["PINECONE_API_KEY"]
@@ -77,8 +77,8 @@ class RagChainClass(ChainClass):
         self.rag_chain = RetrievalQA.from_chain_type(  
             llm=self.rag_llm,  
             chain_type="stuff",  
-            retriever=self.vectorstore.as_retriever(search_kwargs={"k": 200})  ,
-#            memory=MEMORY
+            retriever=self.vectorstore.as_retriever(search_kwargs={"k": 20})  ,
+            memory=MEMORY
         )  
 
     @retry(tries=1, delay=12)
@@ -105,14 +105,8 @@ class RagChainClass(ChainClass):
 
         with get_openai_callback() as cb:
             embedding=OpenAIEmbeddings()
-#            xq = embedding.embed_query(question)
             chain_result = self.rag_chain.invoke(question, return_only_outputs=False, verbose=True)
-#            embedding=OpenAIEmbeddings()
-#            xq = embedding.embed_query(question)
-#            res = self.index.query(vector=xq, top_k=10, include_metadata=True)
-#            print(chain_result)
             print (cb)
-#        logging.debug(f"chain_result: {chain_result}")
         result = chain_result["result"]
         return(result, cb)
 

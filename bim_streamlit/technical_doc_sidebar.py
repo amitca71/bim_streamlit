@@ -65,8 +65,8 @@ def technical_doc_sidebar():
         net.from_nx(G)
         html_content = net.generate_html(notebook=False)
         st.components.v1.html(html_content, height=400) 
-        sample_questions = ["what is the total price?", "what is the documenst about?", "what construction items are mentioned in the document?" 
-                            "how is the roof smoothing handled"]
+        sample_questions = ["what is the total price?", "what is the documenst about?", "what construction items are mentioned in the document?" , 
+                            "מה מחיר החפירות?", "מהו הרכיב היקר ביותר?", "באילו חומרים משתמשים?" , "היכן ממוקמים מדפי האש?", "מהן עבודות החשמל המוזכרות?","מהן עבודות האיטום המוזכרות?"]
 
         AddSampleQuestions(sample_questions)
 
