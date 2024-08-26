@@ -13,7 +13,7 @@ import logging
 #import rag_agent
 import  graph_cypher_chain
 from graph_cypher_tool import GrpahCypherTool
-from graph_rag_tool import GraphRagTool
+from pinecone_rag_tool import PineconeRagTool
 import streamlit as st
 from common_sidebar import common_sidebar
 
@@ -54,7 +54,7 @@ placeholder = st.empty()
 emoji_feedback = st.empty()
 user_placeholder = st.empty()
 cypher_tool=GrpahCypherTool()
-rag_tool=GraphRagTool()
+rag_tool=PineconeRagTool()
    
 # Initialize message history
 if "messages" not in st.session_state:

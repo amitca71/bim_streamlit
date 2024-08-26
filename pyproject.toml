@@ -21,6 +21,8 @@ langchain-google-genai = "^1.0.8"
 networkx = "^3.3"
 pyvis = "^0.3.2"
 tiktoken = "^0.7.0"
+pinecone-client = "5.0.1"
+#langchain-pinecone = "^0.1"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
