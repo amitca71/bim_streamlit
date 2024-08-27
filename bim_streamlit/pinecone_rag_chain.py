@@ -69,15 +69,24 @@ class RagChainClass(ChainClass):
         index_name = 'quantities-qa-openai'
         self.pc = Pinecone(api_key=pinecone_api_key)
         self.index = self.pc.Index(index_name)
-        print(self.index.describe_index_stats())
+#        print(self.index.describe_index_stats())
 
         self.vectorstore = vpc.Pinecone(self.index,embedding=OpenAIEmbeddings(), text_key="text").\
             from_existing_index(index_name=index_name,embedding=OpenAIEmbeddings(),text_key="text")
-
+        top_k=int(st.session_state["K_TOP"]) if "K_TOP" in st.session_state else 15
+        filter={}
+        if "SECTION" in st.session_state and st.session_state['SECTION'] !='All':
+            filter["section_name"]={'$eq': st.session_state["SECTION"]}
+        if "SUB_SECTION" in st.session_state and st.session_state['SUB_SECTION'] !='All':
+            filter["sub_section_name"]={'$eq': st.session_state["SUB_SECTION"]}
+        if "TASK" in st.session_state and st.session_state['TASK'] !='All':
+            filter["task_name"]={'$eq': st.session_state["TASK"]}
+        if "MIN_COST" in st.session_state:
+            filter["item_cost"]={'$gte': st.session_state["MIN_COST"]}
         self.rag_chain = RetrievalQA.from_chain_type(  
             llm=self.rag_llm,  
             chain_type="stuff",  
-            retriever=self.vectorstore.as_retriever(search_kwargs={"k": 20})  ,
+            retriever=self.vectorstore.as_retriever(search_kwargs={"k": top_k, 'filter':filter } ) ,
             memory=MEMORY
         )  
 
