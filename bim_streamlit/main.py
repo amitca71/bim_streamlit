@@ -122,7 +122,7 @@ if user_input:
 
                     # Convert the list of dictionaries to a Pandas DataFrame
                     df = pd.DataFrame(data)
-
+                    df = df.loc[:, (df != 0).any(axis=0)]
                     # Display the DataFrame as a table in Streamlit
                     st.dataframe(df)
 ##############################
