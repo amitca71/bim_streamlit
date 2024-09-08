@@ -58,8 +58,6 @@ from pinecone import Pinecone
 
 class RagChainClass(ChainClass):
     def set_chain(self):
-        print("setting new pinecone graph chain")
-        print(self.model_name, self.api_base, self.api_key)
         self.graph_chain=None
         if "gemini" in self.model_name:
             self.rag_llm = ChatGoogleGenerativeAI(model=self.model_name, google_api_key=self.api_key,temperature=0, verbose=True)
@@ -69,7 +67,6 @@ class RagChainClass(ChainClass):
         index_name = 'bim-objects-openai'
         self.pc = Pinecone(api_key=pinecone_api_key)
         self.index = self.pc.Index(index_name)
-#        print(self.index.describe_index_stats())
 
         self.vectorstore = vpc.Pinecone(self.index,embedding=OpenAIEmbeddings(), text_key="text").\
             from_existing_index(index_name=index_name,embedding=OpenAIEmbeddings(),text_key="text")
@@ -78,7 +75,6 @@ class RagChainClass(ChainClass):
         if "storeyName" in st.session_state and st.session_state['storeyName'] !='All':
             filter["storeyName"]={'$eq': st.session_state["storeyName"]}
         if "objectType" in st.session_state and st.session_state['objectType'] !='All':
-            print("objectType:", st.session_state['objectType'])
             filter["objectType"]={'$eq': st.session_state["objectType"]}
         if "CrossSectionArea" in st.session_state and float(st.session_state['CrossSectionArea']) >0:
             filter["CrossSectionArea"]={'$gt': float(st.session_state["CrossSectionArea"])}

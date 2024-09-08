@@ -1,3 +1,4 @@
+import pandas as pd
 from analytics import track
 from free_use_manager import (
     free_questions_exhausted,
@@ -74,14 +75,14 @@ with placeholder.container():
             st.markdown(message["content"], unsafe_allow_html=True)
 
 # User input - switch between sidebar sample quick select or actual user input. Clunky but works.
-print("before free_questions_exhausted",free_questions_exhausted(), user_supplied_openai_key_unavailable() )
+#print("before free_questions_exhausted",free_questions_exhausted(), user_supplied_openai_key_unavailable() )
 
 if free_questions_exhausted() and user_supplied_openai_key_unavailable():
     st.warning(
         "Thank you for trying out the Auto Civil Engineer. Please input your OpenAI Key in the sidebar to continue asking questions."
     )
     st.stop()
-print("after free_questions_exhausted")
+#print("after free_questions_exhausted")
 if "sample" in st.session_state and st.session_state["sample"] is not None:
     user_input = st.session_state["sample"]
 else:
@@ -111,7 +112,20 @@ if user_input:
                 elif(st.session_state["USER_SELECTION"]=="DOCUMENTATION"):
                     agent_response, cb=rag_tool.run(tool_input=user_input)     
                 elif(st.session_state["USER_SELECTION"]=="BIM_OBJECTS"):
-                    agent_response, cb=bim_object_tool.run(tool_input=user_input)     
+                    agent_response, cb=bim_object_tool.run(tool_input=user_input)  
+                    data = []
+                    for doc in agent_response:
+                        # Flatten the metadata dictionary and add it to the list
+                        row = {"content": doc.page_content}
+                        row.update(doc.metadata)
+                        data.append(row)
+
+                    # Convert the list of dictionaries to a Pandas DataFrame
+                    df = pd.DataFrame(data)
+
+                    # Display the DataFrame as a table in Streamlit
+                    st.dataframe(df)
+##############################
                 if isinstance(agent_response, dict) is False:
                     logging.warning(
                         f"Agent response was not the expected dict type: {agent_response}"
@@ -119,7 +133,7 @@ if user_input:
                     agent_response = str(agent_response)
                 content = str(agent_response)
  #               content = agent_response["output"]
-                print(f"content={content}")
+#                print(f"content={content}")
                 track(
                     "rag_demo", "ai_response", {"type": "rag_agent", "answer": content}
                 )

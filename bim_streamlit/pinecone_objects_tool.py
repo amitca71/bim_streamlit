@@ -10,5 +10,5 @@ class PineconeObjectsTool:
         """
         For finding similar entities to the ones in the search query.
         """
-        print("Tool input is:" + tool_input)
+#        print("Tool input is:" + tool_input)
         return (self.cypher_chain.get_results(tool_input))

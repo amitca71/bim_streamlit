@@ -36,15 +36,12 @@ for i in (meta_pddf.columns):
         numeric_max_values[i]=2*meta_pddf[i].max()
     else:
         textual_valid_values[i]=list(meta_pddf[i].unique())
-print(textual_valid_values)
 def technical_objects_sidebar():
     with st.sidebar: 
     # Streamlit app layout
         st.title("BIM objects search")
         for k in textual_valid_values.keys():
             st.session_state[k]=st.sidebar.selectbox(k, ['All']+list(sorted(textual_valid_values[k])))
-            print( "session_state set:", k, st.session_state[k] )
-
 #        storey_name=st.sidebar.selectbox("floor name", ['All']+list(sorted(storey_name_set)))
 #        object_type=st.sidebar.selectbox("object type", ['All']+list(sorted(object_type_set)))
 #        age = st.slider("How old are you?", 0.0, 130.0, 0.0)
@@ -65,7 +62,7 @@ def technical_objects_sidebar():
             )
         # Optionally visualize graph data using third-party libraries
 
-        sample_questions = ["רצפה 25 ס״מ b40", "בטון", "brick" ]
+        sample_questions = ["רצפה 25 ס״מ b40", "בטון", "iron column" , "cement column", "b50 floor"]
 
         AddSampleQuestions(sample_questions)
 
