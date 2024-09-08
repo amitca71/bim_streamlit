@@ -21,7 +21,7 @@ object_type_set=set()
 
 for i in (res['matches']):
     storey_name_set.add(i['metadata']['storeyName'])
-    object_type_set.add(i['metadata']['objectName'])
+    object_type_set.add(i['metadata']['objectType'])
 
 def technical_objects_sidebar():
     with st.sidebar: 
