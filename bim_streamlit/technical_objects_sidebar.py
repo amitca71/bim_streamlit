@@ -16,21 +16,46 @@ index_name = st.secrets['BIM_PINECONE_INDEX'] if 'BIM_PINECONE_INDEX' in st.secr
 index = pc.Index(index_name)
 xq = embeddings.embed_query("all")
 res = index.query(vector=xq, top_k=500,include_metadata=True)
-storey_name_set=set()
-object_type_set=set()
 
-for i in (res['matches']):
-    storey_name_set.add(i['metadata']['storeyName'])
-    object_type_set.add(i['metadata']['objectType'])
+metadata_list = [item['metadata'] for item in res['matches']]
 
+#storey_name_set=set()
+#object_type_set=set()
+#for i in (res['matches']):
+#    storey_name_set.add(i['metadata']['storeyName'])
+#    object_type_set.add(i['metadata']['objectType'])
+import pandas as pd
+    
+meta_pddf=pd.DataFrame.from_dict(metadata_list).drop(["id", "objectName", "storeyElevation", "enriched_item", "text"], axis=1)
+numeric_max_values={}
+textual_valid_values={}
+
+keywords = ["area", "volume", "height", "depth", "length", "width", "perimeter"]
+for i in (meta_pddf.columns):
+    if any(keyword in i.lower() for keyword in keywords):
+        numeric_max_values[i]=2*meta_pddf[i].max()
+    else:
+        textual_valid_values[i]=list(meta_pddf[i].unique())
+print(textual_valid_values)
 def technical_objects_sidebar():
     with st.sidebar: 
     # Streamlit app layout
         st.title("BIM objects search")
-        storey_name=st.sidebar.selectbox("floor name", ['All']+list(sorted(storey_name_set)))
-        object_type=st.sidebar.selectbox("object type", ['All']+list(sorted(object_type_set)))
-        st.session_state["STOREY_NAME"]=storey_name
-        st.session_state["OBJECT_TYPE"]=object_type
+        for k in textual_valid_values.keys():
+            st.session_state[k]=st.sidebar.selectbox(k, ['All']+list(sorted(textual_valid_values[k])))
+            print( "session_state set:", k, st.session_state[k] )
+
+#        storey_name=st.sidebar.selectbox("floor name", ['All']+list(sorted(storey_name_set)))
+#        object_type=st.sidebar.selectbox("object type", ['All']+list(sorted(object_type_set)))
+#        age = st.slider("How old are you?", 0.0, 130.0, 0.0)
+#        st.session_state["STOREY_NAME"]=storey_name
+#        st.session_state["OBJECT_TYPE"]=object_type
+
+        for k in numeric_max_values.keys():
+            if (numeric_max_values[k]>0):
+                st.session_state[k]=st.slider(k, 0.0, numeric_max_values[k], 0.0)
+
+
 
         # Example query to fetch data
         with st.sidebar:

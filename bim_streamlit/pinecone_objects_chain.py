@@ -75,10 +75,39 @@ class RagChainClass(ChainClass):
             from_existing_index(index_name=index_name,embedding=OpenAIEmbeddings(),text_key="text")
         top_k=int(st.session_state["K_TOP"]) if "K_TOP" in st.session_state else 15
         filter={}
-        if "STOREY_NAME" in st.session_state and st.session_state['STOREY_NAME'] !='All':
-            filter["storey_name"]={'$eq': st.session_state["STOREY_NAME"]}
-        if "OBJECT_TYPE" in st.session_state and st.session_state['OBJECT_TYPE'] !='All':
-            filter["object_type"]={'$eq': st.session_state["OBJECT_TYPE"]}
+        if "storeyName" in st.session_state and st.session_state['storeyName'] !='All':
+            filter["storeyName"]={'$eq': st.session_state["storeyName"]}
+        if "objectType" in st.session_state and st.session_state['objectType'] !='All':
+            print("objectType:", st.session_state['objectType'])
+            filter["objectType"]={'$eq': st.session_state["objectType"]}
+        if "CrossSectionArea" in st.session_state and float(st.session_state['CrossSectionArea']) >0:
+            filter["CrossSectionArea"]={'$gt': float(st.session_state["CrossSectionArea"])}
+        if "Depth" in st.session_state and float(st.session_state['Depth']) >0:
+            filter["Depth"]={'$gt': float(st.session_state["Depth"])}       
+        if "GrossArea" in st.session_state and float(st.session_state['GrossArea']) >0:
+            filter["GrossArea"]={'$gt': float(st.session_state["GrossArea"])}           
+        if "GrossFootprintArea" in st.session_state and float(st.session_state['GrossFootprintArea']) >0:
+            filter["GrossFootprintArea"]={'$gt': float(st.session_state["GrossFootprintArea"])}      
+        if "GrossSideArea" in st.session_state and float(st.session_state['GrossSideArea']) >0:
+            filter["GrossSideArea"]={'$gt': float(st.session_state["GrossSideArea"])}     
+        if "GrossVolume" in st.session_state and float(st.session_state['GrossVolume']) >0:
+            filter["GrossVolume"]={'$gt': float(st.session_state["GrossVolume"])}   
+        if "Height" in st.session_state and float(st.session_state['Height']) >0:
+            filter["Height"]={'$gt': float(st.session_state["Height"])}    
+        if "Length" in st.session_state and float(st.session_state['Length']) >0:
+            filter["Length"]={'$gt': float(st.session_state["Length"])}   
+        if "NetArea" in st.session_state and float(st.session_state['NetArea']) >0:
+            filter["NetArea"]={'$gt': float(st.session_state["NetArea"])}  
+        if "NetSideArea" in st.session_state and float(st.session_state['NetSideArea']) >0:
+            filter["NetSideArea"]={'$gt': float(st.session_state["NetSideArea"])}  
+        if "NetVolume" in st.session_state and float(st.session_state['NetVolume']) >0:
+            filter["NetVolume"]={'$gt': float(st.session_state["NetVolume"])}  
+        if "OuterSurfaceArea" in st.session_state and float(st.session_state['OuterSurfaceArea']) >0:
+            filter["OuterSurfaceArea"]={'$gt': float(st.session_state["OuterSurfaceArea"])}  
+        if "Perimeter" in st.session_state and float(st.session_state['Perimeter']) >0:
+            filter["Perimeter"]={'$gt': float(st.session_state["Perimeter"])}  
+        if "Width" in st.session_state and float(st.session_state['Width']) >0:
+            filter["Width"]={'$gt': float(st.session_state["Width"])}  
         self.rag_chain = RetrievalQA.from_chain_type(  
             llm=self.rag_llm,  
             chain_type="stuff",  
@@ -105,8 +134,8 @@ class RagChainClass(ChainClass):
         results = retriever.get_relevant_documents(question)
 
         # Print details of each match
-        for match in results:
-            print(match)
+#        for match in results:
+#            print(match)
         cb=None
 #        with get_openai_callback() as cb:
 #            embedding=OpenAIEmbeddings()
