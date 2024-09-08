@@ -9,7 +9,7 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 from retry import retry
 import streamlit as st
 from common_functions import ChainClass
-from langchain_community.vectorstores import Neo4jVector
+from langchain_community.vectorstores import pinecone as vpc
 from langchain_openai import OpenAIEmbeddings
 import streamlit as st
 from langchain.chains import RetrievalQA
@@ -17,12 +17,8 @@ import logging
 from langchain.callbacks import get_openai_callback
 from langchain.chains.conversation.memory import ConversationBufferMemory
 
-from neo4j_rag_retrievers import (
-    hypothetic_question_vectorstore,
-    parent_vectorstore,
-    summary_vectorstore,
-    typical_rag,
-)
+    #from langchain_pinecone import PineconeVectorStore  
+
 from langchain.callbacks.base import BaseCallbackHandler
 class StreamHandler(BaseCallbackHandler):
     def __init__(self, container, initial_text=""):
@@ -54,48 +50,45 @@ MEMORY = ConversationBufferMemory(
 # Add typing for input
 class Question(BaseModel):
     question: str
-retrieval_query_dict={
-    "typical_rag": None,
-    "parent_document": """
-                    MATCH (node)<-[:HAS_CHILD]-(parent)
-                    WITH parent, max(score) AS score // deduplicate parents
-                    RETURN parent.text AS text, score, {} AS metadata LIMIT 1
-                    """,
-    "hypothetical_questions": """
-                    MATCH (node)<-[:HAS_QUESTION]-(parent)
-                    WITH parent, max(score) AS score // deduplicate parents
-                    RETURN parent.text AS text, score, {} AS metadata
-                    """,
-    "summary" : """
-        MATCH (node)<-[:HAS_SUMMARY]-(parent)
-        WITH parent, max(score) AS score // deduplicate parents
-        RETURN parent.text AS text, score, {} AS metadata
-        """
 
-}
+
+from pinecone import Pinecone
+
+
+
 class RagChainClass(ChainClass):
     def set_chain(self):
-        print("setting new graphchain")
+        print("setting new pinecone graph chain")
         print(self.model_name, self.api_base, self.api_key)
         self.graph_chain=None
         if "gemini" in self.model_name:
-            self.rag_llm = ChatGoogleGenerativeAI(model=self.model_name, google_api_key=self.api_key,temperature=0, verbose=True,top_k=200)
+            self.rag_llm = ChatGoogleGenerativeAI(model=self.model_name, google_api_key=self.api_key,temperature=0, verbose=True)
         else:
             self.rag_llm = ChatOpenAI(model=self.model_name, openai_api_key=self.api_key,openai_api_base=self.api_base,temperature=0)
-        index_name=st.session_state["RAG_STRATEGY"] if "RAG_STRATEGY" in st.session_state else "hypothetical_questions"
-        self.vectorstore=Neo4jVector.from_existing_index(
-        OpenAIEmbeddings(), index_name=index_name, url=st.secrets["DOC_NEO4J_URI"],
-        username=st.secrets["DOC_NEO4J_USERNAME"],
-        password=st.secrets["DOC_NEO4J_PASSWORD"], retrieval_query=None)
-        self.rag_chain = RetrievalQA.from_chain_type(
-            llm=self.rag_llm, chain_type="stuff"
-            , retriever=self.vectorstore.as_retriever(),
-            memory=MEMORY,
-        )      
-        
+        pinecone_api_key = st.secrets["PINECONE_API_KEY"]
+        index_name = 'bim-objects-openai'
+        self.pc = Pinecone(api_key=pinecone_api_key)
+        self.index = self.pc.Index(index_name)
+#        print(self.index.describe_index_stats())
+
+        self.vectorstore = vpc.Pinecone(self.index,embedding=OpenAIEmbeddings(), text_key="text").\
+            from_existing_index(index_name=index_name,embedding=OpenAIEmbeddings(),text_key="text")
+        top_k=int(st.session_state["K_TOP"]) if "K_TOP" in st.session_state else 15
+        filter={}
+        if "STOREY_NAME" in st.session_state and st.session_state['STOREY_NAME'] !='All':
+            filter["storey_name"]={'$eq': st.session_state["STOREY_NAME"]}
+        if "OBJECT_TYPE" in st.session_state and st.session_state['OBJECT_TYPE'] !='All':
+            filter["object_type"]={'$eq': st.session_state["OBJECT_TYPE"]}
+        self.rag_chain = RetrievalQA.from_chain_type(  
+            llm=self.rag_llm,  
+            chain_type="stuff",  
+            retriever=self.vectorstore.as_retriever(search_kwargs={"k": top_k, 'filter':filter } ) ,
+            memory=MEMORY
+        )  
+
     @retry(tries=1, delay=12)
     def get_results(self, question) -> str:
-        """Generate response using Neo4jVector using vector index only
+        """Generate response using Pinecone Vector using vector index only
 
         Args:
             question (str): User query
@@ -104,11 +97,23 @@ class RagChainClass(ChainClass):
             str: Formatted string answer with citations, if available.
         """
         logging.info(f"Question: {question}")
-        with get_openai_callback() as cb:
-            chain_result = self.rag_chain.invoke(question, return_only_outputs=True)
-            print (cb)
-        logging.debug(f"chain_result: {chain_result}")
-        result = chain_result["result"]
+        embedding=OpenAIEmbeddings()
+        query_vector = embedding.embed_query(question)
+
+        # Query the retriever directly
+        retriever = self.rag_chain.retriever
+        results = retriever.get_relevant_documents(question)
+
+        # Print details of each match
+        for match in results:
+            print(match)
+        cb=None
+#        with get_openai_callback() as cb:
+#            embedding=OpenAIEmbeddings()
+#            chain_result = self.rag_chain.invoke(question, return_only_outputs=False, verbose=True)
+#            print (cb)
+#        result = chain_result["result"]
+        result=results
         return(result, cb)
 
 

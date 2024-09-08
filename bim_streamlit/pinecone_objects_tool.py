@@ -1,7 +1,7 @@
 from langchain.tools import tool
-from pinecone_rag_chain import RagChainClass
+from pinecone_objects_chain import RagChainClass
 
-class GraphRagTool:
+class PineconeObjectsTool:
     def __init__(self):
         self.cypher_chain = RagChainClass()
 

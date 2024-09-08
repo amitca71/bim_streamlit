@@ -14,6 +14,7 @@ import logging
 import  graph_cypher_chain
 from graph_cypher_tool import GrpahCypherTool
 from pinecone_rag_tool import PineconeRagTool
+from pinecone_objects_tool import PineconeObjectsTool
 import streamlit as st
 from common_sidebar import common_sidebar
 
@@ -55,6 +56,7 @@ emoji_feedback = st.empty()
 user_placeholder = st.empty()
 cypher_tool=GrpahCypherTool()
 rag_tool=PineconeRagTool()
+bim_object_tool=PineconeObjectsTool()
    
 # Initialize message history
 if "messages" not in st.session_state:
@@ -108,6 +110,8 @@ if user_input:
                     agent_response, intermediate_steps, cb=cypher_tool.run(tool_input=user_input)  
                 elif(st.session_state["USER_SELECTION"]=="DOCUMENTATION"):
                     agent_response, cb=rag_tool.run(tool_input=user_input)     
+                elif(st.session_state["USER_SELECTION"]=="BIM_OBJECTS"):
+                    agent_response, cb=bim_object_tool.run(tool_input=user_input)     
                 if isinstance(agent_response, dict) is False:
                     logging.warning(
                         f"Agent response was not the expected dict type: {agent_response}"
