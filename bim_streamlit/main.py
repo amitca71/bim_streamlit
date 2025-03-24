@@ -46,7 +46,7 @@ with col1:
 #    st.write("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")  # Empty space in the first column to push content to the right
 
 with col2:
-    st.image(image_path, use_column_width=False, width=400)
+    st.image(image_path, use_container_width=False, width=400)
 # Create a dropdown menu
 
 common_sidebar()
