@@ -132,6 +132,7 @@ class CypherChainClass(ChainClass):
             graph=graph,
             memory=MEMORY,
             verbose=True, 
+            allow_dangerous_requests=True,
             return_intermediate_steps = True,
             return_direct = True)
 
